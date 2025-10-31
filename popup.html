@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>YouTube AI Content Filter</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="popup-body">
+    <main class="popup">
+      <h1>YouTube AI Content Filter</h1>
+      <section class="popup-section">
+        <label class="toggle">
+          <input type="checkbox" id="hide-toggle" />
+          <span>Hide AI-flagged videos</span>
+        </label>
+      </section>
+      <section class="popup-section">
+        <p class="section-title">Select AI Content Type:</p>
+        <div class="category-grid">
+          <label class="category-option">
+            <input type="checkbox" name="category" value="ai-video" />
+            <span>🎬 AI Video</span>
+          </label>
+          <label class="category-option">
+            <input type="checkbox" name="category" value="ai-music" />
+            <span>🎵 AI Music</span>
+          </label>
+          <label class="category-option">
+            <input type="checkbox" name="category" value="ai-voice" />
+            <span>🎤 AI Voice</span>
+          </label>
+          <label class="category-option">
+            <input type="checkbox" name="category" value="ai-images" />
+            <span>🖼️ AI Images</span>
+          </label>
+        </div>
+      </section>
+      <section class="popup-section">
+        <button id="flag-button" type="button">Flag current video as AI</button>
+      </section>
+      <section class="popup-section">
+        <button id="refresh-button" type="button" class="secondary-button">🔄 Refresh & Clear Cache</button>
+      </section>
+      <section class="popup-section">
+        <button id="debug-button" type="button" class="secondary-button">🐛 Debug Badges</button>
+      </section>
+      <p id="status" class="status-message" role="status" aria-live="polite"></p>
+      <p class="hint">
+        Tip: Use refresh button if badges don't appear immediately.
+      </p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

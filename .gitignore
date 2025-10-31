@@ -1,0 +1,43 @@
+# Environment ve config dosyaları
+config.js
+firebase-config.js
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Icon files
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# ZIP archives (build outputs)
+*.zip
+*.crx
+*.pem
+
+# Temporary files
+*.tmp
+temp/
+tmp/
+
+# Node modules (eğer gelecekte kullanılırsa)
+node_modules/
+
+# Test files
+test/
+*.test.js
+
