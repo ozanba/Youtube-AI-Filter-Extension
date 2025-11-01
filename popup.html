@@ -3,48 +3,94 @@
   <head>
     <meta charset="utf-8" />
     <title>YouTube AI Content Filter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="popup-body">
     <main class="popup">
-      <h1>YouTube AI Content Filter</h1>
-      <section class="popup-section">
-        <label class="toggle">
-          <input type="checkbox" id="hide-toggle" />
-          <span>Hide AI-flagged videos</span>
-        </label>
-      </section>
-      <section class="popup-section">
-        <p class="section-title">Select AI Content Type:</p>
+      <header class="popup-header">
+        <h1>YouTube AI Filter</h1>
+      </header>
+      
+      <!-- Flagging Section -->
+      <section class="popup-section flag-section">
+        <h2 class="section-title">Flag Current Video</h2>
         <div class="category-grid">
           <label class="category-option">
-            <input type="checkbox" name="category" value="ai-video" />
-            <span>🎬 AI Video</span>
+            <input type="checkbox" name="flag-category" value="ai-video" />
+            <span>AI Video</span>
           </label>
           <label class="category-option">
-            <input type="checkbox" name="category" value="ai-music" />
-            <span>🎵 AI Music</span>
+            <input type="checkbox" name="flag-category" value="ai-music" />
+            <span>AI Music</span>
           </label>
           <label class="category-option">
-            <input type="checkbox" name="category" value="ai-voice" />
-            <span>🎤 AI Voice</span>
+            <input type="checkbox" name="flag-category" value="ai-voice" />
+            <span>AI Voice</span>
           </label>
           <label class="category-option">
-            <input type="checkbox" name="category" value="ai-images" />
-            <span>🖼️ AI Images</span>
+            <input type="checkbox" name="flag-category" value="ai-images" />
+            <span>AI Images</span>
           </label>
         </div>
+        <button id="flag-button" type="button" class="primary-button">Submit Flag</button>
+        <p id="status" class="status-message" role="status" aria-live="polite"></p>
       </section>
-      <section class="popup-section">
-        <button id="flag-button" type="button">Flag current video as AI</button>
+      
+      <div class="separator"></div>
+      
+      <!-- Video Filtering Section -->
+      <section class="popup-section filter-section">
+        <div class="section-header">
+          <h2 class="section-title">Video Filtering</h2>
+          <label class="toggle-switch">
+            <input type="checkbox" id="filter-enabled-toggle" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div id="filter-settings" class="filter-settings">
+          <div class="filter-option">
+            <label for="flag-count-slider" class="filter-label">
+              Minimum flags: <strong id="flag-count-value">3</strong>
+            </label>
+            <input type="range" id="flag-count-slider" min="1" max="10" value="3" class="slider" />
+          </div>
+          
+          <div class="filter-option">
+            <p class="filter-label">Filter categories</p>
+            <div class="category-grid">
+              <label class="category-option">
+                <input type="checkbox" name="filter-category" value="ai-video" />
+                <span>AI Video</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" name="filter-category" value="ai-music" />
+                <span>AI Music</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" name="filter-category" value="ai-voice" />
+                <span>AI Voice</span>
+              </label>
+              <label class="category-option">
+                <input type="checkbox" name="filter-category" value="ai-images" />
+                <span>AI Images</span>
+              </label>
+            </div>
+          </div>
+        </div>
       </section>
-      <section class="popup-section">
-        <button id="refresh-button" type="button" class="secondary-button">🔄 Refresh & Clear Cache</button>
+      
+      <div class="separator"></div>
+      
+      <!-- Utility Buttons -->
+      <section class="popup-section utility-section">
+        <button id="refresh-button" type="button" class="utility-button">Refresh & Clear Cache</button>
+        <button id="debug-button" type="button" class="utility-button">Debug Badges</button>
       </section>
-      <section class="popup-section">
-        <button id="debug-button" type="button" class="secondary-button">🐛 Debug Badges</button>
-      </section>
-      <p id="status" class="status-message" role="status" aria-live="polite"></p>
+      
       <p class="hint">
         Tip: Use refresh button if badges don't appear immediately.
       </p>

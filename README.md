@@ -14,7 +14,7 @@ A powerful browser extension that helps identify AI-generated content on YouTube
 - 🚩 **Flag Videos**: Mark any YouTube video as AI-generated content
 - 🏷️ **Visual Badges**: See "AI Content" badges on flagged video thumbnails
 - 🎯 **Category System**: Classify content by type (AI Video, Music, Voice, Images)
-- 👁️ **Hide Flagged Content**: Optional feature to hide AI-flagged videos
+- 🎬 **Smart Video Filtering**: Filter videos by specific AI categories and customizable flag thresholds
 - 🔄 **Smart Caching**: Efficient data management with manual refresh option
 - 🌐 **Community-Powered**: Crowd-sourced flagging system
 
@@ -66,9 +66,19 @@ cp config.example.js config.js
 - **Recommendations**: Side panel videos also show badges
 - **Hover**: See detailed category breakdown in tooltips
 
-### Hiding Content
+### Video Filtering
 
-Toggle the **"Hide AI-flagged videos"** option in the popup to automatically hide flagged content from your feed.
+1. Open the extension popup
+2. Enable **"Video Filtering"** toggle
+3. Set your **minimum flag threshold** (default: 3, range: 1-10)
+4. Select which **AI categories** to filter:
+   - 🎬 AI Video - AI-generated video content
+   - 🎵 AI Music - AI-generated music or audio
+   - 🎤 AI Voice - AI voice synthesis or dubbing
+   - 🖼️ AI Images - AI-generated images in the video
+5. Videos matching your criteria will be automatically hidden
+
+**Note**: If no categories are selected, all flagged videos meeting the minimum flag count will be filtered.
 
 ## 🏗️ Architecture
 
@@ -165,7 +175,6 @@ Copyright © 2025 YouTube AI Content Filter Contributors
 
 - **Issues**: [GitHub Issues](https://github.com/YOUR-USERNAME/youtube-ai-filter/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/YOUR-USERNAME/youtube-ai-filter/discussions)
-- **Email**: support@example.com
 
 ---
 

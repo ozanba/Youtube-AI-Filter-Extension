@@ -36,7 +36,9 @@ const VIDEO_CONTAINER_SELECTORS = [
 ].join(",");
 
 let settings = {
-  hideFlaggedVideos: false
+  filterEnabled: false,
+  filterMinimumFlags: 3,
+  filterCategories: []
 };
 let scanScheduled = false;
 let currentWatchVideoId = null;
@@ -240,8 +242,34 @@ function ensureBadge(element) {
   return badge;
 }
 
-function updateElementVisibility(element, flagged) {
-  if (flagged && settings.hideFlaggedVideos) {
+function updateElementVisibility(element, flagged, flagData = {}) {
+  let shouldHide = false;
+  
+  // Check filtering system
+  if (settings.filterEnabled && flagged) {
+    const count = flagData.count || 0;
+    const categories = flagData.categories || {};
+    
+    // Check if video meets minimum flag count
+    if (count >= settings.filterMinimumFlags) {
+      // If no categories selected, filter all flagged videos
+      if (settings.filterCategories.length === 0) {
+        shouldHide = true;
+      } else {
+        // Check if video has any of the selected categories
+        const hasMatchingCategory = settings.filterCategories.some(filterCategory => {
+          return categories[filterCategory] && categories[filterCategory] > 0;
+        });
+        
+        if (hasMatchingCategory) {
+          shouldHide = true;
+        }
+      }
+    }
+  }
+  
+  // Update visibility state
+  if (shouldHide) {
     element.classList.add("ai-video-hidden");
   } else {
     element.classList.remove("ai-video-hidden");
@@ -300,7 +328,7 @@ function updateBadge(element, flagged, count, categories = {}) {
     console.log(`🚫 [AI Filter] Badge hidden for element`);
   }
 
-  updateElementVisibility(element, flagged);
+  updateElementVisibility(element, flagged, { count, categories });
 }
 
 async function markVideoIfFlagged(videoId, element) {
@@ -556,13 +584,45 @@ function handleStorageChange(changes, areaName) {
     return;
   }
 
-  if (Object.prototype.hasOwnProperty.call(changes, "hideFlaggedVideos")) {
-    settings.hideFlaggedVideos = Boolean(changes.hideFlaggedVideos.newValue);
+  let settingsChanged = false;
+  
+  if (Object.prototype.hasOwnProperty.call(changes, "filterEnabled")) {
+    settings.filterEnabled = Boolean(changes.filterEnabled.newValue);
+    settingsChanged = true;
+  }
+  
+  if (Object.prototype.hasOwnProperty.call(changes, "filterMinimumFlags")) {
+    settings.filterMinimumFlags = parseInt(changes.filterMinimumFlags.newValue, 10) || 3;
+    settingsChanged = true;
+  }
+  
+  if (Object.prototype.hasOwnProperty.call(changes, "filterCategories")) {
+    settings.filterCategories = changes.filterCategories.newValue || [];
+    settingsChanged = true;
+  }
+
+  if (settingsChanged) {
+    console.log(`⚙️ [AI Filter] Settings changed, updating visibility:`, settings);
+    
+    // If filtering is disabled, force show ALL hidden videos
+    if (!settings.filterEnabled) {
+      console.log(`👁️ [AI Filter] Filtering disabled, showing all videos`);
+      const hiddenElements = document.querySelectorAll('.ai-video-hidden');
+      console.log(`Found ${hiddenElements.length} hidden elements to show`);
+      hiddenElements.forEach(element => {
+        element.classList.remove('ai-video-hidden');
+      });
+    }
+    
+    // Re-apply visibility to all registered elements
     elementRegistry.forEach((elements, videoId) => {
       const cached = flagCache.get(videoId);
       const flagged = cached?.flagged ?? false;
-      elements.forEach((element) => updateElementVisibility(element, flagged));
+      elements.forEach((element) => updateElementVisibility(element, flagged, cached));
     });
+    
+    // Also trigger a new scan to catch any elements not in registry
+    scheduleScan();
   }
 }
 
@@ -572,18 +632,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  if (message?.type === "REQUEST_HIDE_PREFERENCE") {
-    sendResponse({ hideFlaggedVideos: settings.hideFlaggedVideos });
-  }
-
-  if (message?.type === "SET_HIDE_PREFERENCE") {
-    settings.hideFlaggedVideos = Boolean(message.hideFlaggedVideos);
-    chrome.storage.sync.set({ hideFlaggedVideos: settings.hideFlaggedVideos });
-    elementRegistry.forEach((elements, videoId) => {
-      const cached = flagCache.get(videoId);
-      const flagged = cached?.flagged ?? false;
-      elements.forEach((element) => updateElementVisibility(element, flagged));
-    });
+  if (message?.type === "UPDATE_FILTER_SETTINGS") {
+    // Reload filter settings from storage
+    chrome.storage.sync.get(
+      ["filterEnabled", "filterMinimumFlags", "filterCategories"],
+      (data) => {
+        settings.filterEnabled = data.filterEnabled === true;
+        settings.filterMinimumFlags = data.filterMinimumFlags || 3;
+        settings.filterCategories = data.filterCategories || [];
+        
+        console.log(`⚙️ [AI Filter] Filter settings updated:`, settings);
+        
+        // If filtering is disabled, force show ALL hidden videos
+        if (!settings.filterEnabled) {
+          console.log(`👁️ [AI Filter] Filtering disabled, showing all videos`);
+          const hiddenElements = document.querySelectorAll('.ai-video-hidden');
+          console.log(`Found ${hiddenElements.length} hidden elements to show`);
+          hiddenElements.forEach(element => {
+            element.classList.remove('ai-video-hidden');
+          });
+        }
+        
+        // Re-apply visibility to all registered elements
+        elementRegistry.forEach((elements, videoId) => {
+          const cached = flagCache.get(videoId);
+          const flagged = cached?.flagged ?? false;
+          elements.forEach((element) => {
+            console.log(`🔄 [AI Filter] Updating element for video ${videoId}:`, { flagged, cached });
+            updateElementVisibility(element, flagged, cached);
+          });
+        });
+        
+        // Also trigger a new scan to catch any elements not in registry
+        console.log(`🔍 [AI Filter] Scheduling rescan after filter settings update`);
+        scheduleScan();
+      }
+    );
+    sendResponse({ success: true });
+    return true;
   }
 
   if (message?.type === "CLEAR_CACHE_AND_RESCAN") {
@@ -613,15 +699,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     sendResponse({ success: true, badgeCount: allBadges.length });
   }
+  
 });
 
 function init() {
   console.log(`🚀 [AI Filter] Initializing YouTube AI Filter...`);
   
-  chrome.storage.sync.get(["hideFlaggedVideos"], (result) => {
-    settings.hideFlaggedVideos = Boolean(result.hideFlaggedVideos);
-    scheduleScan();
-  });
+  chrome.storage.sync.get(
+    ["filterEnabled", "filterMinimumFlags", "filterCategories"], 
+    (result) => {
+      settings.filterEnabled = result.filterEnabled === true; // default: false
+      settings.filterMinimumFlags = result.filterMinimumFlags || 3;
+      settings.filterCategories = result.filterCategories || [];
+      
+      console.log(`⚙️ [AI Filter] Settings loaded:`, settings);
+      scheduleScan();
+    }
+  );
 
   chrome.storage.onChanged.addListener(handleStorageChange);
 

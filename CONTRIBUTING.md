@@ -45,7 +45,8 @@ Before submitting PR:
 ## 🎯 Areas for Contribution
 
 ### High Priority
-- [ ] Add unit tests
+- [x] Smart video filtering by category
+- [x] User-configurable flag thresholds
 - [ ] Improve badge positioning
 - [ ] Add more AI categories
 - [ ] Implement rate limiting
@@ -55,15 +56,12 @@ Before submitting PR:
 - [ ] Dark mode support
 - [ ] Localization (i18n)
 - [ ] Statistics dashboard
-- [ ] Export/import flags
 - [ ] Keyboard shortcuts
 
 ### Nice to Have
 - [ ] Video preview on hover
 - [ ] Category filters
-- [ ] Trending AI content
 - [ ] Browser compatibility (Firefox, Edge)
-- [ ] Mobile support
 
 ---
 
